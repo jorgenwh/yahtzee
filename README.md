@@ -1,7 +1,7 @@
-# yahtzee
+# Yahtzee!
 
-# Implementing new agents
+### Implementing new agents
 ...
 
-# Agent evaluations
+### Agent evaluations
 ![](assets/agentperformances.png)
