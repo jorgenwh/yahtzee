@@ -24,7 +24,7 @@ class Arena():
     def graph_results(self, output_filename: str) -> None:
         agent_names = [result.agent_name for result in self.evaluation_results]
         mean_scores = [result.mean for result in self.evaluation_results]
-        c = ["blue", "green", "red", "cyan", "gray"]
+        c = ["blue", "green", "red", "cyan"]
         colors = [c[i % len(c)] for i in range(len(agent_names))]
 
         _, ax = plt.subplots()
