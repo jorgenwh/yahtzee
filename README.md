@@ -9,4 +9,6 @@
 - (OPTIONAL): Run scripts/evaluate_agents.py to see how it performs compared to the other agents.
 
 ### Agent evaluations
-![](assets/agentperformances.png)
+<p align="center">
+  <img src="./assets/agentperformances.png" width="300">
+</p>
