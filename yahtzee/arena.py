@@ -67,4 +67,7 @@ class Arena():
         plt.legend(loc="upper center", bbox_to_anchor=(0.5, -0.1), ncol=3)
         plt.subplots_adjust(bottom=0.2)
 
+        # set background color
+        ax.set_facecolor("lightgrey")
+
         plt.savefig(output_filename)
