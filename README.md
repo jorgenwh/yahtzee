@@ -10,5 +10,5 @@
 
 ### Agent evaluations
 <p align="center">
-  <img src="./assets/agentperformances.png" width="750">
+  <img src="./assets/agentperformances.png" width="700">
 </p>
