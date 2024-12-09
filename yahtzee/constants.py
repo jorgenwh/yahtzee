@@ -14,6 +14,26 @@ CATEGORIES = [
     "large_straight",
     "yahtzee",
 ]
+MAXIMUM_SCORES = {
+    "aces": 5,
+    "twos": 10,
+    "threes": 15,
+    "fours": 20,
+    "fives": 25,
+    "sixes": 30,
+    "chance": 30,
+    "three_of_a_kind": 30,
+    "four_of_a_kind": 30,
+    "full_house": 28,
+    "small_straight": 30,
+    "large_straight": 40,
+    "yahtzee": 50,
+}
+
+MAXIMUM_THEORETICAL_SCORE = sum(MAXIMUM_SCORES.values())
+# The expected score of a random play agent was found by running 2,000,000 episodes
+EXPECTED_RANDOM_PLAY_SCORE = 45.03
+
 ACTIONS = [
     "roll_dice_1",
     "roll_dice_2",

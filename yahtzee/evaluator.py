@@ -30,10 +30,19 @@ class Evaluator():
         self.num_episodes = num_episodes
 
     def evaluate(self) -> EvaluationResult:
+        print(f"Evaluating agent {self.agent.get_name()}")
+
         scores = []
         for e in range(self.num_episodes):
+            print(
+                    f"Playing episode {e + 1:,}/{self.num_episodes:,}", 
+                    end="\r" if e < self.num_episodes - 1 else "\n",
+                    flush=(e<self.num_episodes - 1)
+            )
+
             score = self.play_episode()
             scores.append(score)
+
         return EvaluationResult(self.agent.get_name(), scores)
 
     def play_episode(self) -> int:
