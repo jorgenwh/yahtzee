@@ -3,7 +3,8 @@ from typing import List, Type
 from yahtzee.yahtzee import Yahtzee
 from yahtzee.agent import Agent
 
-class EvaluationResult():
+
+class EvaluationResult:
     def __init__(self, agent_name: str, scores: List[int]):
         self.agent_name = agent_name
         self.scores = scores
@@ -24,7 +25,8 @@ class EvaluationResult():
     def __repr__(self) -> str:
         return self.__str__()
 
-class Evaluator():
+
+class Evaluator:
     def __init__(self, agent_cls: Type[Agent], num_episodes: int = 1000):
         self.agent = agent_cls()
         self.num_episodes = num_episodes
@@ -35,9 +37,9 @@ class Evaluator():
         scores = []
         for e in range(self.num_episodes):
             print(
-                    f"Playing episode {e + 1:,}/{self.num_episodes:,}", 
-                    end="\r" if e < self.num_episodes - 1 else "\n",
-                    flush=(e<self.num_episodes - 1)
+                f"Playing episode {e + 1:,}/{self.num_episodes:,}",
+                end="\r" if e < self.num_episodes - 1 else "\n",
+                flush=(e < self.num_episodes - 1),
             )
 
             score = self.play_episode()
@@ -54,4 +56,3 @@ class Evaluator():
 
         score = game.get_score()
         return score
-

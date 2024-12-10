@@ -1,6 +1,7 @@
 from yahtzee.agent import Agent
 from yahtzee.yahtzee import State
 
+
 class LowestActionAgent(Agent):
     def get_action(self, state: State) -> int:
         for i in range(len(state.valid_actions)):

@@ -1,6 +1,7 @@
 from yahtzee.yahtzee import State
 
-class Agent():
+
+class Agent:
     def __init__(self):
         pass
 
