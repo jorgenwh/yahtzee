@@ -29,13 +29,12 @@ jobs:
 
       - name: Run black
         run: |
-          black .
+          black yahtzee/
 
-        # Some issue with ruff ... needs to be resolved
-      # - name: Run ruff
-      #   run: |
-      #     ruff check --fix .
+      - name: Run ruff
+        run: |
+          ruff check --fix yahtzee/
 
       - name: Run pyright
         run: |
-          pyright .
+          pyright yahtzee/
