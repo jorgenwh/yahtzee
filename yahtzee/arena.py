@@ -9,19 +9,19 @@ from yahtzee.constants import MAXIMUM_THEORETICAL_SCORE, EXPECTED_RANDOM_PLAY_SC
 
 # Import your agent(s) here
 from yahtzee.agents import (
-    #RandomAgent, 
+    # RandomAgent,
     LowestActionAgent,
 )
 
 
 # Add your agent(s) here
 AGENTS: List[Type[Agent]] = [
-        #RandomAgent, 
-        LowestActionAgent,
+    # RandomAgent,
+    LowestActionAgent,
 ]
 
 
-class Arena():
+class Arena:
     def __init__(self, num_episodes: int = 1000):
         self.evaluation_results: List[EvaluationResult] = []
         self.num_episodes = num_episodes
@@ -43,14 +43,14 @@ class Arena():
         bars = ax.bar(agent_names, mean_scores, color=colors)
 
         # Make edge colors of the axes to white
-        ax.spines['bottom'].set_color('white')
-        ax.spines['top'].set_color('white')
-        ax.spines['right'].set_color('white')
-        ax.spines['left'].set_color('white')
+        ax.spines["bottom"].set_color("white")
+        ax.spines["top"].set_color("white")
+        ax.spines["right"].set_color("white")
+        ax.spines["left"].set_color("white")
 
         # Make tick labels white
-        ax.tick_params(axis='x', colors='white')
-        ax.tick_params(axis='y', colors='white')
+        ax.tick_params(axis="x", colors="white")
+        ax.tick_params(axis="y", colors="white")
 
         for bar, score in zip(bars, mean_scores):
             x = bar.get_x() + bar.get_width() / 2
@@ -59,29 +59,31 @@ class Arena():
 
         # Add a line indicating the theoretical maximum score
         plt.axhline(
-                y=MAXIMUM_THEORETICAL_SCORE, 
-                color="white", 
-                linestyle="--", 
-                label="Theoretical maximum score"
+            y=MAXIMUM_THEORETICAL_SCORE,
+            color="white",
+            linestyle="--",
+            label="Theoretical maximum score",
         )
 
         # Add a line indicating the mean score of random play
         plt.axhline(
-                y=EXPECTED_RANDOM_PLAY_SCORE, 
-                color="cyan", 
-                linestyle="--", 
-                label="Random play"
+            y=EXPECTED_RANDOM_PLAY_SCORE,
+            color="cyan",
+            linestyle="--",
+            label="Random play",
         )
 
-        plt.title(f"mean agent scores after {self.num_episodes} episodes", color="white")
+        plt.title(
+            f"mean agent scores after {self.num_episodes} episodes", color="white"
+        )
         plt.xlabel("agent", color="white")
         plt.ylabel("mean score", color="white")
 
         plt.legend(
-                loc="upper center", 
-                bbox_to_anchor=(0.5, -0.1), 
-                ncol=3,
-                frameon=False,
+            loc="upper center",
+            bbox_to_anchor=(0.5, -0.1),
+            ncol=3,
+            frameon=False,
         )
         for text in ax.get_legend().get_texts():
             text.set_color("white")
