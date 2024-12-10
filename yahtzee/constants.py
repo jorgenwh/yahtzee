@@ -81,3 +81,19 @@ ACTIONS = [
     "choose_yahtzee",
 ]
 ACTION_SPACE = len(ACTIONS)
+
+CATEGORY_TO_ACTION = {
+    "aces": ACTIONS.index("choose_aces"),
+    "twos": ACTIONS.index("choose_twos"),
+    "threes": ACTIONS.index("choose_threes"),
+    "fours": ACTIONS.index("choose_fours"),
+    "fives": ACTIONS.index("choose_fives"),
+    "sixes": ACTIONS.index("choose_sixes"),
+    "chance": ACTIONS.index("choose_chance"),
+    "three_of_a_kind": ACTIONS.index("choose_three_of_a_kind"),
+    "four_of_a_kind": ACTIONS.index("choose_four_of_a_kind"),
+    "full_house": ACTIONS.index("choose_full_house"),
+    "small_straight": ACTIONS.index("choose_small_straight"),
+    "large_straight": ACTIONS.index("choose_large_straight"),
+    "yahtzee": ACTIONS.index("choose_yahtzee"),
+}
