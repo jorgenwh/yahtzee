@@ -17,7 +17,7 @@ def play_out_game(yahtzee: Yahtzee) -> int:
 class MonteCarloTreeSearch():
     def search(self, state: State, iters: int) -> int:
         num_valid_actions = sum(state.valid_actions)
-        iters_per_action = iters // num_valid_actions
+        iters_per_action = max(iters // num_valid_actions, 1)
         action_scores = [0] * ACTION_SPACE
 
         for action in range(ACTION_SPACE):
@@ -25,7 +25,7 @@ class MonteCarloTreeSearch():
                 continue
 
             for _ in range(iters_per_action):
-                yahtzee = Yahtzee(state)
+                yahtzee = Yahtzee(state=state)
                 yahtzee.step(action)
                 score = play_out_game(yahtzee)
                 action_scores[action] += score
