@@ -10,7 +10,7 @@ class MctsAgent(Agent):
 
     def get_action(self, state: State) -> int:
         self.mcts = MonteCarloTreeSearch()
-        action = self.mcts.search(state, 1500)
+        action = self.mcts.search(state, 3000)
         return action
 
     def get_name(self) -> str:

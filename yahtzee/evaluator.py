@@ -1,3 +1,4 @@
+import time
 from typing import List, Type
 
 from yahtzee.yahtzee import Yahtzee
@@ -32,12 +33,22 @@ class Evaluator:
         self.num_episodes = num_episodes
 
     def evaluate(self) -> EvaluationResult:
-        print(f"Evaluating agent {self.agent.get_name()}")
+        print(f"Evaluating agent '{self.agent.get_name()}'")
+
+        # time statistics
+        t0 = time.time()
 
         scores = []
         for e in range(self.num_episodes):
+            t = time.time() - t0
+            time_per_episode = t/(e + 1)
+            remaining_time = time_per_episode * (self.num_episodes - (e + 1))
+
+            elapsed_mins = str(round(t/60))
+            remaining_mins = str(round(remaining_time/60))
+
             print(
-                f"Playing episode {e + 1:,}/{self.num_episodes:,}",
+                f"Playing episode {e + 1:,}/{self.num_episodes:,} - Elapsed time: {elapsed_mins}m - Remaining time: {remaining_mins}m",
                 end="\r" if e < self.num_episodes - 1 else "\n",
                 flush=(e < self.num_episodes - 1),
             )
