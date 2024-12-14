@@ -3,6 +3,7 @@ from typing import List, Type
 
 from yahtzee.yahtzee import Yahtzee
 from yahtzee.agent import Agent
+from yahtzee.utils import s2ts
 
 
 class EvaluationResult:
@@ -44,11 +45,11 @@ class Evaluator:
             time_per_episode = t/(e + 1)
             remaining_time = time_per_episode * (self.num_episodes - (e + 1))
 
-            elapsed_mins = str(round(t/60))
-            remaining_mins = str(round(remaining_time/60))
+            elapsed = s2ts(t)
+            remaining = s2ts(remaining_time)
 
             print(
-                f"Playing episode {e + 1:,}/{self.num_episodes:,} - Elapsed time: {elapsed_mins}m - Remaining time: {remaining_mins}m",
+                f"Playing episode {e + 1:,}/{self.num_episodes:,} - Elapsed time: {elapsed} - Remaining time: {remaining}",
                 end="\r" if e < self.num_episodes - 1 else "\n",
                 flush=(e < self.num_episodes - 1),
             )
