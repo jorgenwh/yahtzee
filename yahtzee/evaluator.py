@@ -36,17 +36,15 @@ class Evaluator:
     def evaluate(self) -> EvaluationResult:
         print(f"Evaluating agent '{self.agent.get_name()}'")
 
-        # time statistics
-        t0 = time.time()
-
         scores = []
+        t0 = time.time()
         for e in range(self.num_episodes):
             t = time.time() - t0
-            time_per_episode = t/(e + 1)
+            time_per_episode = t / (e + 1)
             remaining_time = time_per_episode * (self.num_episodes - (e + 1))
 
-            elapsed = s2ts(t)
-            remaining = s2ts(remaining_time)
+            elapsed = s2ts(int(t))
+            remaining = s2ts(int(remaining_time))
 
             print(
                 f"Playing episode {e + 1:,}/{self.num_episodes:,} - Elapsed time: {elapsed} - Remaining time: {remaining}",
