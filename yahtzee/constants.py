@@ -1,4 +1,5 @@
 NUM_DICE = 5
+
 CATEGORIES = [
     "aces",
     "twos",
@@ -14,6 +15,7 @@ CATEGORIES = [
     "large_straight",
     "yahtzee",
 ]
+
 MAXIMUM_SCORES = {
     "aces": 5,
     "twos": 10,
@@ -29,10 +31,6 @@ MAXIMUM_SCORES = {
     "large_straight": 40,
     "yahtzee": 50,
 }
-
-MAXIMUM_THEORETICAL_SCORE = sum(MAXIMUM_SCORES.values())
-# The expected score of a random play agent was found by running 2,000,000 episodes
-EXPECTED_RANDOM_PLAY_SCORE = 45.03
 
 ACTIONS = [
     "roll_dice_1",
@@ -80,6 +78,7 @@ ACTIONS = [
     "choose_large_straight",
     "choose_yahtzee",
 ]
+
 ACTION_SPACE = len(ACTIONS)
 
 CATEGORY_TO_ACTION = {
@@ -96,4 +95,147 @@ CATEGORY_TO_ACTION = {
     "small_straight": ACTIONS.index("choose_small_straight"),
     "large_straight": ACTIONS.index("choose_large_straight"),
     "yahtzee": ACTIONS.index("choose_yahtzee"),
+}
+
+
+MAXIMUM_THEORETICAL_SCORE = sum(MAXIMUM_SCORES.values())
+# The expected score of a random play agent was found by running 2,000,000 episodes
+EXPECTED_RANDOM_PLAY_SCORE = 45.03
+
+
+MAXI_YATZY_NUM_DICE = 6
+
+MAXI_YATZY_CATEGORIES = [
+    "aces",
+    "twos",
+    "threes",
+    "fours",
+    "fives",
+    "sixes",
+    "1_pair",
+    "2_pairs",
+    "3_pairs",
+    "3_of_a_kind",
+    "4_of_a_kind",
+    "5_of_a_kind",
+    "small_straight",
+    "large_straight",
+    "full_straight",
+    "cabin",
+    "house",
+    "tower",
+    "chance",
+    "maxiyatzy",
+]
+
+MAXI_YATZY_MAXIMUM_SCORES = { 
+    "aces": 1*6,
+    "twos": 2*6,
+    "threes": 3*6,
+    "fours": 4*6,
+    "fives": 5*6,
+    "sixes": 6*6,
+    "1_pair": 6*2,
+    "2_pairs": 6*2 + 5*2,
+    "3_pairs": 6*2 + 5*2 + 4*2,
+    "3_of_a_kind": 6*3,
+    "4_of_a_kind": 6*4,
+    "5_of_a_kind": 6*5,
+    "small_straight": 1 + 2 + 3 + 4 + 5,
+    "large_straight": 2 + 3 + 4 + 5 + 6,
+    "full_straight": 1 + 2 + 3 + 4 + 5 + 6,
+    "cabin": 6*3 + 5*2,
+    "house": 6*3 + 5*3,
+    "tower": 6*4 + 5*2,
+    "chance": 6*6,
+    "maxiyatzy": 100,
+}
+
+MAXI_YATZY_ACTIONS = [
+    "roll_dice_1",
+    "roll_dice_2",
+    "roll_dice_3",
+    "roll_dice_4",
+    "roll_dice_5",
+    "roll_dice_6",
+    "roll_dice_1_and_2",
+    "roll_dice_1_and_3",
+    "roll_dice_1_and_4",
+    "roll_dice_1_and_5",
+    "roll_dice_1_and_6",
+    "roll_dice_2_and_3",
+    "roll_dice_2_and_4",
+    "roll_dice_2_and_5",
+    "roll_dice_2_and_6",
+    "roll_dice_3_and_4",
+    "roll_dice_3_and_5",
+    "roll_dice_3_and_6",
+    "roll_dice_4_and_5",
+    "roll_dice_4_and_6",
+    "roll_dice_5_and_6",
+    "roll_dice_1_and_2_and_3",
+    "roll_dice_1_and_2_and_4",
+    "roll_dice_1_and_2_and_5",
+    "roll_dice_1_and_2_and_6",
+    "roll_dice_1_and_3_and_4",
+    "roll_dice_1_and_3_and_5",
+    "roll_dice_1_and_3_and_6",
+    "roll_dice_1_and_4_and_5",
+    "roll_dice_1_and_4_and_6",
+    "roll_dice_1_and_5_and_6",
+    "roll_dice_2_and_3_and_4",
+    "roll_dice_2_and_3_and_5",
+    "roll_dice_2_and_3_and_6",
+    "roll_dice_2_and_4_and_5",
+    "roll_dice_2_and_4_and_6",
+    "roll_dice_2_and_5_and_6",
+    "roll_dice_3_and_4_and_5",
+    "roll_dice_3_and_4_and_6",
+    "roll_dice_3_and_5_and_6",
+    "roll_dice_4_and_5_and_6",
+    "choose_aces",
+    "choose_twos",
+    "choose_threes",
+    "choose_fours",
+    "choose_fives",
+    "choose_sixes",
+    "choose_1_pair",
+    "choose_2_pairs",
+    "choose_3_pairs",
+    "choose_3_of_a_kind",
+    "choose_4_of_a_kind",
+    "choose_5_of_a_kind",
+    "choose_small_straight",
+    "choose_large_straight",
+    "choose_full_straight",
+    "choose_cabin",
+    "choose_house",
+    "choose_tower",
+    "choose_chance",
+    "choose_maxiyatzy",
+]
+
+MAXI_YATZY_ACTION_SPACE = len(MAXI_YATZY_ACTIONS)
+
+MAXI_YATZY_CATEGORY_TO_ACTION = {
+    "aces": MAXI_YATZY_ACTIONS.index("choose_aces"),
+    "twos": MAXI_YATZY_ACTIONS.index("choose_twos"),
+    "threes": MAXI_YATZY_ACTIONS.index("choose_threes"),
+    "fours": MAXI_YATZY_ACTIONS.index("choose_fours"),
+    "fives": MAXI_YATZY_ACTIONS.index("choose_fives"),
+    "sixes": MAXI_YATZY_ACTIONS.index("choose_sixes"),
+    "1_pair": MAXI_YATZY_ACTIONS.index("choose_1_pair"),
+    "2_pairs": MAXI_YATZY_ACTIONS.index("choose_2_pairs"),
+    "3_pairs": MAXI_YATZY_ACTIONS.index("choose_3_pairs"),
+    "3_of_a_kind": MAXI_YATZY_ACTIONS.index("choose_3_of_a_kind"),
+    "4_of_a_kind": MAXI_YATZY_ACTIONS.index("choose_4_of_a_kind"),
+    "5_of_a_kind": MAXI_YATZY_ACTIONS.index("choose_5_of_a_kind"),
+    "small_straight": MAXI_YATZY_ACTIONS.index("choose_small_straight"),
+    "large_straight": MAXI_YATZY_ACTIONS.index("choose_large_straight"),
+    "full_straight": MAXI_YATZY_ACTIONS.index("choose_full_straight"),
+    "cabin": MAXI_YATZY_ACTIONS.index("choose_cabin"),
+    "house": MAXI_YATZY_ACTIONS.index("choose_house"),
+    "tower": MAXI_YATZY_ACTIONS.index("choose_tower"),
+    "chance": MAXI_YATZY_ACTIONS.index("choose_chance"),
+    "maxiyatzy": MAXI_YATZY_ACTIONS.index("choose_maxiyatzy"),
 }
