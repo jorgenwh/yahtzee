@@ -11,7 +11,8 @@ from yahtzee.constants import MAXIMUM_THEORETICAL_SCORE, EXPECTED_RANDOM_PLAY_SC
 from yahtzee.agents import (
     LowestActionAgent,
     VeryGreedyAgent,
-    MctsAgent,
+    #MctsAgent,
+    DQNAgent,
 )
 
 
@@ -19,7 +20,8 @@ from yahtzee.agents import (
 AGENTS: List[Type[Agent]] = [
     LowestActionAgent,
     VeryGreedyAgent,
-    MctsAgent,
+    #MctsAgent,
+    DQNAgent,
 ]
 
 
