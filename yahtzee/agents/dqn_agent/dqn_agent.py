@@ -10,10 +10,9 @@ from yahtzee.agents.dqn_agent.model import Model
 
 class DQNAgent(Agent):
     def __init__(self):
+        self.model = Model()
         if os.path.exists("model.pth"):
-            self.model = torch.load("model.pth")
-        else:
-            self.model = Model()
+            self.model.load_state_dict(torch.load("model.pth"))
 
     def get_action(self, state: State) -> int:
         state_tensor = state_to_tensor(state)

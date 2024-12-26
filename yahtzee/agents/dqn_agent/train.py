@@ -137,12 +137,15 @@ class Trainer:
         self.model.load_state_dict(torch.load(path))
 
     def _create_plots(self) -> None:
+        print("Creating plots...")
+
         plt.plot(self.score_tracker.get_history())
         plt.title("score history")
         plt.xlabel("mean over 100 episodes")
         plt.ylabel("score")
         plt.savefig("score_history.png")
         plt.close()
+        print("Score history plot saved to 'score_history.png'")
 
         plt.plot(self.loss_tracker.get_history())
         plt.title("loss history")
@@ -150,3 +153,4 @@ class Trainer:
         plt.ylabel("loss")
         plt.savefig("loss_history.png")
         plt.close()
+        print("Loss history plot saved to 'loss_history.png'")
