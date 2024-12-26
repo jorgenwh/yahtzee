@@ -1,140 +1,152 @@
-import random
 import torch
-from collections import deque
+import random
+from tqdm import tqdm
+from typing import List
+from matplotlib import pyplot as plt
 
-from yahtzee.agents.dqn_agent.replay_buffer import ReplayBuffer
-from yahtzee.agents.dqn_agent.dqn_agent import DQNAgent
-from yahtzee.agents.dqn_agent.model import Model
 from yahtzee.yahtzee import Yahtzee
-from yahtzee.agents.dqn_agent.utils import state_to_tensor
+from yahtzee.constants import ACTION_SPACE
+from yahtzee.agents.dqn_agent.model import Model, INPUT_SIZE
+from yahtzee.agents.dqn_agent.replay_buffer import ReplayBuffer
+from yahtzee.agents.dqn_agent.utils import state_to_tensor, ValueTracker
 
 
-TRAINING_STEPS = 15
+NUM_EPISODES = 2500
+EPSILON = 0.1
 BATCH_SIZE = 16
-LEARNING_RATE = 0.001
-DISCOUNT_FACTOR = 0.95
+GAMMA = 0.99
+LR = 0.001
 
 
-def simple_state_to_tensor(state):
-    return torch.tensor([state.number, state.cntr], dtype=torch.float32)
-
-
-class Trainer():
+class Trainer:
     def __init__(self):
-        # self.player = DQNAgent()
-        # self.target = DQNAgent()
-        self.player = Model()
-        self.target = Model()
-        self.replay_buffer = ReplayBuffer()
+        self.game = Yahtzee()
+        self.replay_buffer = ReplayBuffer(capacity=500)
+        self.model = Model()
+        self.criterion = torch.nn.MSELoss()
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=LR)
 
-        self.losses = deque(maxlen=500)
-        self.scores = deque(maxlen=500)
+        self.score_tracker = ValueTracker()
+        self.loss_tracker = ValueTracker()
 
-    def run(self):
-        for i in range(1000):
-            self.iterate()
+    def run(self) -> None:
+        for _ in tqdm(range(NUM_EPISODES)):
+            self._play_episode()
 
-            if i % 10 == 0:
-                #self.player.model.load_state_dict(self.target.model.state_dict())
-                self.player.load_state_dict(self.target.state_dict())
+        self._create_plots()
 
-    def iterate(self):
-        self.play_episode()
-        self.train_model()
+    def _select_action(
+        self, state: torch.Tensor, valid_actions: List[int]
+    ) -> torch.Tensor:
+        sample = random.random()
 
-    def train_model(self):
-        """
-        Q(S_t, A_t) = (1 - LR) * Q(S_t, A_t) + LR * (R_t + DF * max_a Q(S_{t+1}, a))
-        """
-        #model = self.target.model
-        model = self.target
-        optimizer = torch.optim.RMSprop(model.parameters(), lr=0.001)
-        criterion = torch.nn.MSELoss()
+        if sample > EPSILON:  # Sample greedily from the Q-network
+            with torch.no_grad():
+                action_values = self.model(state)
+                for i in range(ACTION_SPACE):
+                    if valid_actions[i] == 0:
+                        action_values[0][i] = -float("inf")
+                return action_values.max(1).indices.view(1, 1)
 
-        for i in range(TRAINING_STEPS):
-            (states, actions, rewards, next_states, dones) = self.replay_buffer.sample(min(BATCH_SIZE, len(self.replay_buffer)))
+        else:  # Sample randomly from the action space
+            action = random.randint(0, ACTION_SPACE - 1)
+            while valid_actions[action] == 0:
+                action = random.randint(0, ACTION_SPACE - 1)
+            return torch.tensor([action], dtype=torch.long).view(1, 1)
 
-            states = torch.stack([simple_state_to_tensor(state) for state in states])
-            actions = torch.tensor(actions)
-            next_states = torch.stack([simple_state_to_tensor(state) for state in next_states])
-            rewards = torch.tensor(rewards)
-            dones = list(dones)
+    def _play_episode(self) -> None:
+        self.model.eval()
 
-            q_values = self.player(states)
-            next_q_values = self.target(next_states).detach()
-
-            target_q_values = q_values.clone()
-
-            for i in range(len(dones)):
-                if dones[i]:
-                    target_q_values[i][actions[i]] = rewards[i]
-                else:
-                    target_q_values[i][actions[i]] = rewards[i] + DISCOUNT_FACTOR * torch.max(next_q_values[i])
-                    #target_q_values[i][actions[i]] = torch.max(next_q_values[i])
-
-            loss = criterion(q_values, target_q_values)
-            self.losses.append(loss.item())
-
-            optimizer.zero_grad()
-
-            loss.backward()
-
-            optimizer.step()
-
-            print(f"Score: {round(sum(self.scores)/max(len(self.scores), 1), 1)} - Loss: {round(sum(self.losses)/max(len(self.losses), 1), 2)}", end="\r", flush=True)
-
-    def play_episode(self):
-        #game = Yahtzee()
-        game = SimpleGame()
+        state = self.game.reset()
+        state_tensor = state_to_tensor(state).view(1, INPUT_SIZE)
 
         while True:
-            state = game.state.copy()
-            #action = self.player.get_action(game.state)
+            action = self._select_action(state_tensor, state.valid_actions)
+            action = int(action.item())
+            next_state = self.game.step(action)
 
-            action_scores = self.player(simple_state_to_tensor(state))
-            if random.random() < 0.1:
-                action = random.randint(0, 1)
-            else:
-                action = torch.argmax(action_scores).item()
+            reward = torch.tensor([next_state.score], dtype=torch.float32)
+            next_state_tensor = state_to_tensor(next_state).view(1, INPUT_SIZE)
 
-            game.step(action)
-            
-            next_state = game.state.copy()
-            done = game.is_done()
-            reward = game.get_score()
+            self.replay_buffer.push(
+                state_tensor, action, reward, next_state_tensor, next_state.is_done
+            )
 
-            self.replay_buffer.add(state, action, reward, next_state, done)
+            state = next_state
 
-            if done:
-                self.scores.append(reward)
-                print(f"Score: {round(sum(self.scores)/max(len(self.scores), 1), 2)} - Loss: {round(sum(self.losses)/max(len(self.losses), 1), 4)}", end="\r", flush=True)
+            self._update_model()
+
+            if next_state.is_done:
                 break
 
+        self.score_tracker.add(state.score)
 
-class SimpleState():
-    def __init__(self, number = random.randint(-10, 10), cntr = 0):
-        self.number = number
-        self.cntr = cntr
+    def _update_model(self) -> None:
+        if len(self.replay_buffer) < BATCH_SIZE:
+            return
 
-    def copy(self):
-        return SimpleState(self.number, self.cntr)
+        self.model.train()
 
-class SimpleGame():
-    def __init__(self):
-        self.state = SimpleState()
+        transitions = self.replay_buffer.sample(BATCH_SIZE)
 
-    def step(self, action):
-        assert action in [0, 1]
+        states = torch.cat([transition.state for transition in transitions])
+        assert states.shape == (BATCH_SIZE, INPUT_SIZE), states.shape
 
-        if action == 0:
-            self.state.number -= 1
-        else:
-            self.state.number += 1
+        actions = torch.tensor(
+            [transition.action for transition in transitions], dtype=torch.long
+        ).view(BATCH_SIZE, 1)
+        assert actions.shape == (BATCH_SIZE, 1), actions.shape
 
-        self.state.cntr += 1
+        rewards = torch.cat([transition.reward for transition in transitions])
+        assert rewards.shape == torch.Size([BATCH_SIZE]), rewards.shape
 
-    def is_done(self):
-        return self.state.cntr >= 100
+        next_states = torch.cat(
+            [transition.next_state for transition in transitions if not transition.done]
+        )
+        assert next_states.shape[-1] == INPUT_SIZE, next_states.shape
 
-    def get_score(self):
-        return 10 - abs(self.state.number)
+        dones = [not transition.done for transition in transitions]
+        assert len(dones) == BATCH_SIZE, len(dones)
+
+        # Get top action values from model for the state batch
+        state_action_values = self.model(states).gather(1, actions)
+
+        # Get top action values from model for the next_state batch
+        next_state_values = torch.zeros(BATCH_SIZE)
+        with torch.no_grad():
+            next_state_values[dones] = self.model(next_states).max(1).values
+
+        expected_state_action_values = rewards + next_state_values * GAMMA
+
+        loss = self.criterion(
+            state_action_values, expected_state_action_values.view(BATCH_SIZE, 1)
+        )
+
+        self.optimizer.zero_grad()
+        loss.backward()
+        self.optimizer.step()
+
+        status = self.loss_tracker.add(loss.item())
+        if status == -1:
+            self._save_model("model.pth")
+
+    def _save_model(self, path: str) -> None:
+        torch.save(self.model.state_dict(), path)
+
+    def _load_model(self, path: str) -> None:
+        self.model.load_state_dict(torch.load(path))
+
+    def _create_plots(self) -> None:
+        plt.plot(self.score_tracker.get_history())
+        plt.title("score history")
+        plt.xlabel("mean over 100 episodes")
+        plt.ylabel("score")
+        plt.savefig("score_history.png")
+        plt.close()
+
+        plt.plot(self.loss_tracker.get_history())
+        plt.title("loss history")
+        plt.xlabel("mean over 100 updates")
+        plt.ylabel("loss")
+        plt.savefig("loss_history.png")
+        plt.close()

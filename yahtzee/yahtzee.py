@@ -12,14 +12,12 @@ class State:
     remaining_rolls: int = 2
     is_done: bool = False
     dice: List[int] = field(
-            default_factory=lambda: [random.randint(0, 6) for _ in range(NUM_DICE)]
+        default_factory=lambda: [random.randint(0, 6) for _ in range(NUM_DICE)]
     )
     available_categories: List[int] = field(
-            default_factory=lambda: [1] * len(CATEGORIES)
+        default_factory=lambda: [1] * len(CATEGORIES)
     )
-    valid_actions: List[int] = field(
-            default_factory=lambda: [1] * ACTION_SPACE
-    )
+    valid_actions: List[int] = field(default_factory=lambda: [1] * ACTION_SPACE)
 
 
 class Yahtzee:

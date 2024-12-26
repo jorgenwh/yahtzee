@@ -1,20 +1,37 @@
-from collections import deque
+import torch
 import random
+from collections import deque
+from dataclasses import dataclass
 
 
 BUFFER_SIZE = 5000
 
 
-class ReplayBuffer():
-    def __init__(self):
-        self.buffer = deque(maxlen=BUFFER_SIZE)
+@dataclass
+class Transition:
+    state: torch.Tensor
+    action: int
+    reward: torch.Tensor
+    next_state: torch.Tensor
+    done: bool
 
-    def add(self, state, action, reward, next_state, done):
-        self.buffer.append((state, action, reward, next_state, done))
 
-    def sample(self, batch_size: int):
-        states, actions, rewards, next_states, dones = zip(*random.sample(self.buffer, batch_size))
-        return states, actions, rewards, next_states, dones
+class ReplayBuffer:
+    def __init__(self, capacity):
+        self.memory = deque(maxlen=capacity)
+
+    def push(
+        self,
+        state: torch.Tensor,
+        action: int,
+        reward: torch.Tensor,
+        next_state: torch.Tensor,
+        done: bool,
+    ) -> None:
+        self.memory.append(Transition(state, action, reward, next_state, done))
+
+    def sample(self, batch_size):
+        return random.sample(self.memory, batch_size)
 
     def __len__(self):
-        return len(self.buffer)
+        return len(self.memory)

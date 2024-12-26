@@ -5,4 +5,10 @@ from .very_greedy_agent.very_greedy_agent import VeryGreedyAgent
 from .mcts_agent.mcts_agent import MctsAgent
 from .dqn_agent.dqn_agent import DQNAgent
 
-__all__ = ["RandomAgent", "LowestActionAgent", "VeryGreedyAgent", "MctsAgent", "DQNAgent"]
+__all__ = [
+    "RandomAgent",
+    "LowestActionAgent",
+    "VeryGreedyAgent",
+    "MctsAgent",
+    "DQNAgent",
+]
