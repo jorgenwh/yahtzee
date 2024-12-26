@@ -2,8 +2,6 @@ import random
 import torch
 from collections import deque
 
-import gym
-
 from yahtzee.agents.dqn_agent.replay_buffer import ReplayBuffer
 from yahtzee.agents.dqn_agent.dqn_agent import DQNAgent
 from yahtzee.agents.dqn_agent.model import Model
@@ -62,8 +60,8 @@ class Trainer():
             rewards = torch.tensor(rewards)
             dones = list(dones)
 
-            q_values = model(states)
-            next_q_values = model(next_states)
+            q_values = self.player(states)
+            next_q_values = self.target(next_states).detach()
 
             target_q_values = q_values.clone()
 
@@ -71,8 +69,8 @@ class Trainer():
                 if dones[i]:
                     target_q_values[i][actions[i]] = rewards[i]
                 else:
-                    #target_q_values[i][actions[i]] = rewards[i] + DISCOUNT_FACTOR * torch.max(next_q_values[i])
-                    target_q_values[i][actions[i]] = torch.max(next_q_values[i])
+                    target_q_values[i][actions[i]] = rewards[i] + DISCOUNT_FACTOR * torch.max(next_q_values[i])
+                    #target_q_values[i][actions[i]] = torch.max(next_q_values[i])
 
             loss = criterion(q_values, target_q_values)
             self.losses.append(loss.item())

@@ -4,8 +4,7 @@ from torch.nn import functional as F
 from yahtzee.constants import ACTION_SPACE
 
 
-#INPUT_SIZE = 45
-INPUT_SIZE = 2
+INPUT_SIZE = 45
 
 
 class Model(nn.Module):
@@ -13,7 +12,7 @@ class Model(nn.Module):
         super(Model, self).__init__()
         self.fc1 = nn.Linear(INPUT_SIZE, 256)
         self.fc2 = nn.Linear(256, 256)
-        self.fc3 = nn.Linear(256, 2)
+        self.fc3 = nn.Linear(256, ACTION_SPACE)
 
     def forward(self, x):
         x = self.fc1(x)

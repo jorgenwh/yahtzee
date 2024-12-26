@@ -13,7 +13,7 @@ def state_to_tensor(state: State) -> torch.Tensor:
         t[offset + roll] = 1
         offset += 6
 
-    for _, value in state.available_categories.items():
+    for value in state.available_categories:
         t[offset] = value
         offset += 1
 
