@@ -76,8 +76,10 @@ class Arena:
             ncol=3,
             frameon=False,
         )
-        for text in ax.get_legend().get_texts():
-            text.set_color("white")
+        legend = ax.get_legend()
+        if legend:
+            for text in legend.get_texts():
+                text.set_color("white")
         plt.subplots_adjust(bottom=0.2)
 
         # set background color of image and plot

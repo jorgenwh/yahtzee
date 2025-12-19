@@ -25,7 +25,9 @@ class DQNAgent(Agent):
             state.valid_actions, dtype=torch.float32, device=self.device
         )
         action_scores = torch.where(
-            valid_action_tensor == 1, action_scores, torch.tensor(-1e8, device=self.device)
+            valid_action_tensor == 1,
+            action_scores,
+            torch.tensor(-1e8, device=self.device),
         )
 
         action = int(torch.argmax(action_scores).item())

@@ -49,15 +49,27 @@ class Trainer:
         pbar = tqdm(range(NUM_EPISODES))
         for episode in pbar:
             self._play_episode()
-            avg_score = sum(self.recent_scores) / len(self.recent_scores) if self.recent_scores else 0
-            avg_loss = sum(self.recent_losses) / len(self.recent_losses) if self.recent_losses else 0
+            avg_score = (
+                sum(self.recent_scores) / len(self.recent_scores)
+                if self.recent_scores
+                else 0
+            )
+            avg_loss = (
+                sum(self.recent_losses) / len(self.recent_losses)
+                if self.recent_losses
+                else 0
+            )
             pbar.set_postfix(score=f"{avg_score:.1f}", loss=f"{avg_loss:.4f}")
 
             # Checkpoint if score improved
-            if (episode + 1) % CHECKPOINT_INTERVAL == 0 and avg_score > self.best_avg_score:
+            if (
+                episode + 1
+            ) % CHECKPOINT_INTERVAL == 0 and avg_score > self.best_avg_score:
                 self.best_avg_score = avg_score
                 self._save_model("model.pth")
-                tqdm.write(f"Saved checkpoint at episode {episode + 1} (avg score: {avg_score:.1f})")
+                tqdm.write(
+                    f"Saved checkpoint at episode {episode + 1} (avg score: {avg_score:.1f})"
+                )
 
         self._create_plots()
 
@@ -78,7 +90,9 @@ class Trainer:
             action = random.randint(0, ACTION_SPACE - 1)
             while valid_actions[action] == 0:
                 action = random.randint(0, ACTION_SPACE - 1)
-            return torch.tensor([action], dtype=torch.long, device=self.device).view(1, 1)
+            return torch.tensor([action], dtype=torch.long, device=self.device).view(
+                1, 1
+            )
 
     def _play_episode(self) -> None:
         self.policy_net.eval()
@@ -92,9 +106,13 @@ class Trainer:
             next_state = self.game.step(action)
 
             reward = torch.tensor(
-                [next_state.score - state.score], dtype=torch.float32, device=self.device
+                [next_state.score - state.score],
+                dtype=torch.float32,
+                device=self.device,
             )
-            next_state_tensor = state_to_tensor(next_state, self.device).view(1, INPUT_SIZE)
+            next_state_tensor = state_to_tensor(next_state, self.device).view(
+                1, INPUT_SIZE
+            )
 
             self.replay_buffer.push(
                 state_tensor,
@@ -128,7 +146,9 @@ class Trainer:
         assert states.shape == (BATCH_SIZE, INPUT_SIZE), states.shape
 
         actions = torch.tensor(
-            [transition.action for transition in transitions], dtype=torch.long, device=self.device
+            [transition.action for transition in transitions],
+            dtype=torch.long,
+            device=self.device,
         ).view(BATCH_SIZE, 1)
         assert actions.shape == (BATCH_SIZE, 1), actions.shape
 
@@ -137,7 +157,9 @@ class Trainer:
 
         # Get non-terminal transitions
         non_terminal_mask = torch.tensor(
-            [not transition.done for transition in transitions], dtype=torch.bool, device=self.device
+            [not transition.done for transition in transitions],
+            dtype=torch.bool,
+            device=self.device,
         )
         non_terminal_transitions = [t for t in transitions if not t.done]
         non_terminal_next_states = (
@@ -145,7 +167,9 @@ class Trainer:
             if non_terminal_transitions
             else None
         )
-        non_terminal_valid_actions = [t.next_valid_actions for t in non_terminal_transitions]
+        non_terminal_valid_actions = [
+            t.next_valid_actions for t in non_terminal_transitions
+        ]
 
         # Get Q-values for current states from policy network
         state_action_values = self.policy_net(states).gather(1, actions)
