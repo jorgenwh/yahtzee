@@ -1,5 +1,5 @@
 import time
-from typing import List, Type
+from typing import List, Type, Union
 
 from yahtzee.yahtzee import Yahtzee
 from yahtzee.agent import Agent
@@ -29,8 +29,12 @@ class EvaluationResult:
 
 
 class Evaluator:
-    def __init__(self, agent_cls: Type[Agent], num_episodes: int = 1000):
-        self.agent = agent_cls()
+    def __init__(self, agent: Union[Type[Agent], Agent], num_episodes: int = 1000):
+        # Accept either an agent class or an agent instance
+        if isinstance(agent, Agent):
+            self.agent = agent
+        else:
+            self.agent = agent()
         self.num_episodes = num_episodes
 
     def evaluate(self) -> EvaluationResult:
@@ -59,10 +63,10 @@ class Evaluator:
 
     def play_episode(self) -> int:
         game = Yahtzee()
+        state = game.reset()
 
-        while not game.is_done():
-            action = self.agent.get_action(game.state)
-            game.step(action)
+        while not state.is_done:
+            action = self.agent.get_action(state)
+            state = game.step(action)
 
-        score = game.get_score()
-        return score
+        return state.score

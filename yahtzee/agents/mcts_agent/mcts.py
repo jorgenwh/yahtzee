@@ -4,16 +4,18 @@ from yahtzee.yahtzee import State, Yahtzee
 from yahtzee.constants import ACTION_SPACE
 
 
-def play_out_game(yahtzee: Yahtzee) -> int:
-    while not yahtzee.is_done():
+def play_out_game(state: State, initial_action: int) -> int:
+    game = Yahtzee(state)
+    s = game.step(initial_action)
+
+    while not s.is_done:
         valid_action_indices = [
-            i
-            for i, valid_action in enumerate(yahtzee.state.valid_actions)
-            if valid_action
+            i for i, valid_action in enumerate(s.valid_actions) if valid_action
         ]
         action = random.choice(valid_action_indices)
-        yahtzee.step(action)
-    return yahtzee.get_score()
+        s = game.step(action)
+
+    return s.score
 
 
 class MonteCarloTreeSearch:
@@ -22,14 +24,12 @@ class MonteCarloTreeSearch:
         iters_per_action = max(iters // num_valid_actions, 1)
         action_scores = [0] * ACTION_SPACE
 
-        for action in range(ACTION_SPACE):
-            if not state.valid_actions[action]:
+        for initial_action in range(ACTION_SPACE):
+            if not state.valid_actions[initial_action]:
                 continue
 
             for _ in range(iters_per_action):
-                yahtzee = Yahtzee(state=state)
-                yahtzee.step(action)
-                score = play_out_game(yahtzee)
-                action_scores[action] += score
+                score = play_out_game(state, initial_action)
+                action_scores[initial_action] += score
 
         return action_scores.index(max(action_scores))

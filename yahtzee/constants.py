@@ -14,6 +14,7 @@ CATEGORIES = [
     "large_straight",
     "yahtzee",
 ]
+NUM_CATEGORIES = len(CATEGORIES)
 MAXIMUM_SCORES = {
     "aces": 5,
     "twos": 10,

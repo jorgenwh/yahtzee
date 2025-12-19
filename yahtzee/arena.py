@@ -1,5 +1,5 @@
 import random
-from typing import List, Type
+from typing import List, Type, Union
 from matplotlib import pyplot as plt
 
 from yahtzee.agent import Agent
@@ -7,30 +7,19 @@ from yahtzee.evaluator import Evaluator, EvaluationResult
 from yahtzee.constants import MAXIMUM_THEORETICAL_SCORE, EXPECTED_RANDOM_PLAY_SCORE
 
 
-# Import your agent(s) here
-from yahtzee.agents import (
-    LowestActionAgent,
-    VeryGreedyAgent,
-    MctsAgent,
-)
-
-
-# Add your agent(s) here
-AGENTS: List[Type[Agent]] = [
-    LowestActionAgent,
-    VeryGreedyAgent,
-    MctsAgent,
-]
-
-
 class Arena:
-    def __init__(self, num_episodes: int = 1000):
+    def __init__(
+        self,
+        agents: List[Union[Type[Agent], Agent]],
+        num_episodes: int = 1000,
+    ):
+        self.agents = agents
         self.evaluation_results: List[EvaluationResult] = []
         self.num_episodes = num_episodes
 
     def run(self) -> None:
-        for agent_cls in AGENTS:
-            evaluator = Evaluator(agent_cls, self.num_episodes)
+        for agent in self.agents:
+            evaluator = Evaluator(agent, self.num_episodes)
             evaluation_result = evaluator.evaluate()
             self.evaluation_results.append(evaluation_result)
 
@@ -87,8 +76,10 @@ class Arena:
             ncol=3,
             frameon=False,
         )
-        for text in ax.get_legend().get_texts():
-            text.set_color("white")
+        legend = ax.get_legend()
+        if legend:
+            for text in legend.get_texts():
+                text.set_color("white")
         plt.subplots_adjust(bottom=0.2)
 
         # set background color of image and plot

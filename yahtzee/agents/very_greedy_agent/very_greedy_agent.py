@@ -11,7 +11,8 @@ class VeryGreedyAgent(Agent):
         best_score = -1
 
         for category in CATEGORIES:
-            if state.available_categories[category]:
+            action_idx = CATEGORY_TO_ACTION[category]
+            if state.valid_actions[action_idx]:
                 score = check_category(category, dice)
                 if score > best_score:
                     best_score = score
