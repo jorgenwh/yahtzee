@@ -16,15 +16,21 @@ EPSILON = 0.1
 BATCH_SIZE = 16
 GAMMA = 0.99
 LR = 0.001
+BUFFER_SIZE = 5000
+TARGET_UPDATE_FREQ = 100
 
 
 class Trainer:
     def __init__(self):
         self.game = Yahtzee()
-        self.replay_buffer = ReplayBuffer(capacity=500)
-        self.model = Model()
+        self.replay_buffer = ReplayBuffer(capacity=BUFFER_SIZE)
+        self.policy_net = Model()
+        self.target_net = Model()
+        self.target_net.load_state_dict(self.policy_net.state_dict())
+        self.target_net.eval()
         self.criterion = torch.nn.MSELoss()
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=LR)
+        self.optimizer = torch.optim.Adam(self.policy_net.parameters(), lr=LR)
+        self.update_counter = 0
 
         self.score_tracker = ValueTracker()
         self.loss_tracker = ValueTracker()
@@ -42,7 +48,7 @@ class Trainer:
 
         if sample > EPSILON:  # Sample greedily from the Q-network
             with torch.no_grad():
-                action_values = self.model(state)
+                action_values = self.policy_net(state)
                 for i in range(ACTION_SPACE):
                     if valid_actions[i] == 0:
                         action_values[0][i] = -float("inf")
@@ -55,7 +61,7 @@ class Trainer:
             return torch.tensor([action], dtype=torch.long).view(1, 1)
 
     def _play_episode(self) -> None:
-        self.model.eval()
+        self.policy_net.eval()
 
         state = self.game.reset()
         state_tensor = state_to_tensor(state).view(1, INPUT_SIZE)
@@ -65,14 +71,20 @@ class Trainer:
             action = int(action.item())
             next_state = self.game.step(action)
 
-            reward = torch.tensor([next_state.score], dtype=torch.float32)
+            reward = torch.tensor([next_state.score - state.score], dtype=torch.float32)
             next_state_tensor = state_to_tensor(next_state).view(1, INPUT_SIZE)
 
             self.replay_buffer.push(
-                state_tensor, action, reward, next_state_tensor, next_state.is_done
+                state_tensor,
+                action,
+                reward,
+                next_state_tensor,
+                next_state.valid_actions,
+                next_state.is_done,
             )
 
             state = next_state
+            state_tensor = next_state_tensor
 
             self._update_model()
 
@@ -85,7 +97,7 @@ class Trainer:
         if len(self.replay_buffer) < BATCH_SIZE:
             return
 
-        self.model.train()
+        self.policy_net.train()
 
         transitions = self.replay_buffer.sample(BATCH_SIZE)
 
@@ -100,21 +112,32 @@ class Trainer:
         rewards = torch.cat([transition.reward for transition in transitions])
         assert rewards.shape == torch.Size([BATCH_SIZE]), rewards.shape
 
-        next_states = torch.cat(
-            [transition.next_state for transition in transitions if not transition.done]
+        # Get non-terminal transitions
+        non_terminal_mask = torch.tensor(
+            [not transition.done for transition in transitions], dtype=torch.bool
         )
-        assert next_states.shape[-1] == INPUT_SIZE, next_states.shape
+        non_terminal_transitions = [t for t in transitions if not t.done]
+        non_terminal_next_states = (
+            torch.cat([t.next_state for t in non_terminal_transitions])
+            if non_terminal_transitions
+            else None
+        )
+        non_terminal_valid_actions = [t.next_valid_actions for t in non_terminal_transitions]
 
-        dones = [not transition.done for transition in transitions]
-        assert len(dones) == BATCH_SIZE, len(dones)
+        # Get Q-values for current states from policy network
+        state_action_values = self.policy_net(states).gather(1, actions)
 
-        # Get top action values from model for the state batch
-        state_action_values = self.model(states).gather(1, actions)
-
-        # Get top action values from model for the next_state batch
+        # Compute target Q-values using target network with invalid action masking
         next_state_values = torch.zeros(BATCH_SIZE)
-        with torch.no_grad():
-            next_state_values[dones] = self.model(next_states).max(1).values
+        if non_terminal_next_states is not None:
+            with torch.no_grad():
+                target_q_values = self.target_net(non_terminal_next_states)
+                # Mask invalid actions
+                for i, valid_actions in enumerate(non_terminal_valid_actions):
+                    for j in range(ACTION_SPACE):
+                        if valid_actions[j] == 0:
+                            target_q_values[i][j] = -float("inf")
+                next_state_values[non_terminal_mask] = target_q_values.max(1).values
 
         expected_state_action_values = rewards + next_state_values * GAMMA
 
@@ -126,15 +149,21 @@ class Trainer:
         loss.backward()
         self.optimizer.step()
 
+        # Update target network periodically
+        self.update_counter += 1
+        if self.update_counter % TARGET_UPDATE_FREQ == 0:
+            self.target_net.load_state_dict(self.policy_net.state_dict())
+
         status = self.loss_tracker.add(loss.item())
         if status == -1:
             self._save_model("model.pth")
 
     def _save_model(self, path: str) -> None:
-        torch.save(self.model.state_dict(), path)
+        torch.save(self.policy_net.state_dict(), path)
 
     def _load_model(self, path: str) -> None:
-        self.model.load_state_dict(torch.load(path))
+        self.policy_net.load_state_dict(torch.load(path))
+        self.target_net.load_state_dict(self.policy_net.state_dict())
 
     def _create_plots(self) -> None:
         print("Creating plots...")

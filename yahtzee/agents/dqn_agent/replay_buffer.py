@@ -4,15 +4,13 @@ from collections import deque
 from dataclasses import dataclass
 
 
-BUFFER_SIZE = 5000
-
-
 @dataclass
 class Transition:
     state: torch.Tensor
     action: int
     reward: torch.Tensor
     next_state: torch.Tensor
+    next_valid_actions: list
     done: bool
 
 
@@ -26,9 +24,12 @@ class ReplayBuffer:
         action: int,
         reward: torch.Tensor,
         next_state: torch.Tensor,
+        next_valid_actions: list,
         done: bool,
     ) -> None:
-        self.memory.append(Transition(state, action, reward, next_state, done))
+        self.memory.append(
+            Transition(state, action, reward, next_state, next_valid_actions, done)
+        )
 
     def sample(self, batch_size):
         return random.sample(self.memory, batch_size)
