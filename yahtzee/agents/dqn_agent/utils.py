@@ -6,22 +6,32 @@ from yahtzee.yahtzee import State
 from yahtzee.agents.dqn_agent.model import INPUT_SIZE
 
 
-def state_to_tensor(state: State) -> torch.Tensor:
+def get_device(use_cuda: bool = False) -> torch.device:
+    if use_cuda and torch.cuda.is_available():
+        return torch.device("cuda")
+    return torch.device("cpu")
+
+
+def state_to_tensor(state: State, device: torch.device | None = None) -> torch.Tensor:
     t = torch.zeros(INPUT_SIZE, dtype=torch.float32)
 
-    offset = 0
-
+    # Dice counts (permutation-invariant): count of 1s, 2s, 3s, 4s, 5s, 6s
     for dice in state.dice:
-        roll = dice - 1
-        t[offset + roll] = 1
-        offset += 6
+        t[dice - 1] += 1
 
+    offset = 6
+
+    # Available categories
     for value in state.available_categories:
         t[offset] = value
         offset += 1
 
+    # Remaining rolls
     t[offset] = int(state.remaining_rolls >= 1)
     t[offset + 1] = int(state.remaining_rolls >= 2)
+
+    if device is not None:
+        t = t.to(device)
 
     return t
 

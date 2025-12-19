@@ -19,8 +19,14 @@ pyright yahtzee/
 # Evaluate all agents
 python scripts/evaluate_agents.py --episodes 10000
 
-# Train DQN agent
+# Evaluate with custom DQN model and CUDA
+python scripts/evaluate_agents.py --episodes 10000 --model path/to/model.pth --cuda
+
+# Train DQN agent (CPU by default)
 python scripts/train_dqn_agent.py
+
+# Train DQN agent with CUDA GPU
+python scripts/train_dqn_agent.py --cuda
 ```
 
 ## Architecture

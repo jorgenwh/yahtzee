@@ -4,7 +4,7 @@ from yahtzee.yahtzee import State
 from .mcts import MonteCarloTreeSearch
 
 
-MCTS_ROLLOUTS = 500
+MCTS_ROLLOUTS = 5000
 
 
 class MctsAgent(Agent):
