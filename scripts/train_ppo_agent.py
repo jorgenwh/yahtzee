@@ -1,6 +1,6 @@
 import argparse
 
-from yahtzee.agents.dqn_agent.train import Trainer
+from yahtzee.agents.ppo_agent.train import Trainer
 
 
 def parse_args() -> argparse.Namespace:

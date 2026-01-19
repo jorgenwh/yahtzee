@@ -19,14 +19,14 @@ pyright yahtzee/
 # Evaluate all agents
 python scripts/evaluate_agents.py --episodes 10000
 
-# Evaluate with custom DQN model and CUDA
-python scripts/evaluate_agents.py --episodes 10000 --model path/to/model.pth --cuda
+# Evaluate with custom PPO model and CUDA
+python scripts/evaluate_agents.py --episodes 10000 --ppo-model path/to/model.pth --cuda
 
-# Train DQN agent (CPU by default)
-python scripts/train_dqn_agent.py
+# Train PPO agent (CPU by default)
+python scripts/train_ppo_agent.py
 
-# Train DQN agent with CUDA GPU
-python scripts/train_dqn_agent.py --cuda
+# Train PPO agent with CUDA GPU
+python scripts/train_ppo_agent.py --cuda
 ```
 
 ## Architecture
@@ -49,10 +49,11 @@ Base `Agent` class requires implementing:
 3. Import and add to `AGENTS` list in `yahtzee/arena.py`
 
 ### Existing Agents
+- `RandomAgent`: Picks random valid action
 - `LowestActionAgent`: Always picks lowest valid action (baseline)
 - `VeryGreedyAgent`: Greedy category selection
 - `MctsAgent`: Monte Carlo Tree Search
-- `DQNAgent`: Deep Q-Network (PyTorch) - model in `yahtzee/agents/dqn_agent/`
+- `PPOAgent`: Proximal Policy Optimization (PyTorch) - model in `yahtzee/agents/ppo_agent/`
 
 ### Evaluation (`yahtzee/arena.py`, `yahtzee/evaluator.py`)
 `Arena` runs all agents in `AGENTS` list and generates comparison chart. `Evaluator` plays episodes and collects statistics.

@@ -3,7 +3,7 @@ from typing import List
 from collections import deque
 
 from yahtzee.yahtzee import State
-from yahtzee.agents.dqn_agent.model import INPUT_SIZE
+from yahtzee.agents.ppo_agent.model import INPUT_SIZE
 
 
 def get_device(use_cuda: bool = False) -> torch.device:
@@ -39,8 +39,8 @@ def state_to_tensor(state: State, device: torch.device | None = None) -> torch.T
 class ValueTracker:
     def __init__(self, buffer_size: int = 100):
         self.buffer_size = buffer_size
-        self.buffer = deque(maxlen=buffer_size)
-        self.history = []
+        self.buffer: deque[float] = deque(maxlen=buffer_size)
+        self.history: List[float] = []
         self.min = float("inf")
         self.max = -float("inf")
         self.cntr = 0
