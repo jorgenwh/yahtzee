@@ -5,7 +5,7 @@ from yahtzee.agents import (
     LowestActionAgent,
     VeryGreedyAgent,
     MctsAgent,
-    DQNAgent,
+    PPOAgent,
 )
 
 
@@ -20,13 +20,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--cuda",
         action="store_true",
-        help="Use CUDA GPU for DQN agent (default: CPU)",
+        help="Use CUDA GPU for PPO agent (default: CPU)",
     )
     parser.add_argument(
-        "--model",
+        "--ppo-model",
         type=str,
-        default="model.pth",
-        help="Path to DQN model file (default: model.pth)",
+        default="ppo_model.pth",
+        help="Path to PPO model file (default: ppo_model.pth)",
     )
     return parser.parse_args()
 
@@ -37,7 +37,7 @@ agents = [
     LowestActionAgent,
     VeryGreedyAgent,
     MctsAgent,
-    DQNAgent(model_path=args.model, use_cuda=args.cuda),
+    PPOAgent(model_path=args.ppo_model, use_cuda=args.cuda),
 ]
 
 arena = Arena(agents=agents, num_episodes=args.episodes)
